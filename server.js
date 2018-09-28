@@ -1,3 +1,6 @@
+/**
+ * This file handles server initialisation
+ */
 const  express = require('express');
 const https = require('https');
 const app = express();
@@ -24,7 +27,6 @@ client.use((req, res, next) => {
 client.get("/", (req,res) => {
   res.sendFile(path + "index.html");
 });
-
 
 /**
  * Gets HTML about page
