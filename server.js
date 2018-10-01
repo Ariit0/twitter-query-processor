@@ -42,7 +42,7 @@ app.use("*", (req,res) => {
 });
 
 /**
- * Stars a UNIX socket and listens for connections on the given path.
+ * Starts a UNIX socket and listens for connections on the given path.
  */
 app.listen(port, () => {
     console.log(`Express app listening at http://${hostname}:${port}/`);
