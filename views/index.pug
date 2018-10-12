@@ -20,13 +20,14 @@ nav.navbar.navbar-expand-sm.bg-dark.navbar-dark
         a.nav-link(href='/') Home
 .container(style='margin-top:30px')
   h1(style='margin-left: 33.33%') Hash Tag Querier
-  form
-    .form-group
-      .row
-        .col-md-10
-          input.form-control(type='text' name='')
-        .col-md-2
-          button.btn.btn-default(type='submit') Search
+  .form-container
+    form(action='', method='post')
+      .form-group
+        .row
+          .col-md-10
+            input.form-control(type='text' name='query')
+          .col-md-2
+            button.btn.btn-default(type='submit') Search
 // Optional JavaScript
 // jQuery first, then Popper.js, then Bootstrap JS
 script(src='https://code.jquery.com/jquery-3.3.1.slim.min.js' integrity='sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo' crossorigin='anonymous')
