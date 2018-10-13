@@ -5,6 +5,8 @@ var MongoClient = require('mongodb').MongoClient;
 
 const twitcfg = require('../config/twitterconfig.json');
 
+var uri = "mongodb://34.209.5.212:27017/CAB432-MongoDB";
+
 var api = new Twit ({
 	consumer_key: twitcfg.CONSUMER_KEY,
 	consumer_secret: twitcfg.CONSUMER_SECRET,
@@ -22,28 +24,50 @@ router.use(function (req, res, next) {
  * Occurs when the user sends a POST request (search bar)
  */
 router.post('/', function (req, res) {
+	var input = req.body.query;
+	input.split();
 
-	console.log('INPUT QUERY: ' + req.body.query);
+	// make sures theres a # in the query, otherwise append to start of input
+	if (input[0] !== '#') {
+		input = `#${input}`;
+		console.log(input);
+	}
+	console.log('INPUT QUERY: ' + input);
 
-	api.get('search/tweets', {q: req.body.query, count: 10}, function(err, data, response) {
-	data.statuses.forEach(function(data) {
-			console.log('tweet: ' + data.text);
+	/**
+	 * Establish connection to mongodb 
+	 */
+	try {
+		MongoClient.connect(uri, { useNewUrlParser: true }, function(err, db) {
+			if (!err) {
+				console.log('Connected to MongoDB');
+
+				// Make calls to the DB first before performing a get request to twitter endpoint
+				// Store get query (the tag) + feed to the DB
+				// If a tag is not on the db yet add it along with the feed
+
+				api.get('search/tweets', {q: input, count: 1}, function(err, data, response) {
+				data.statuses.forEach(function(data) {
+						console.log(data);
+					});
+				});
+
+				res.render('index');
+
+			} else { // redirect to error page 
+				console.log('Connection to MongoDB Failed');
+				res.writeHead(500, {'Content-Type': 'text/plain'});
+				res.write("500: Internal Server Error");
+				res.end();
+			}
 		});
-	});
-	
-	res.render('index');
+	} catch (e) {
+		console.log(e);
+	}	
 });
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	MongoClient.connect("mongodb://34.209.5.212:27017/CAB432-MongoDB", { useNewUrlParser: true }, function(err, db) {
-		if (!err) {
-			console.log('Connected to MongoDB');
-		} else {
-			console.log('Connection to MongoDB Failed');
-		}
-	});
-
 	res.render('index');
 });
 
