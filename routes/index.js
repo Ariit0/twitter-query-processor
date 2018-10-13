@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var Twit = require('twit');
+var MongoClient = require('mongodb').MongoClient;
 
 const twitcfg = require('../config/twitterconfig.json');
 
@@ -35,6 +36,14 @@ router.post('/', function (req, res) {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+	MongoClient.connect("mongodb://34.209.5.212:27017/CAB432-MongoDB", { useNewUrlParser: true }, function(err, db) {
+		if (!err) {
+			console.log('Connected to MongoDB');
+		} else {
+			console.log('Connection to MongoDB Failed');
+		}
+	});
+
 	res.render('index');
 });
 
