@@ -29,7 +29,7 @@ router.use(function (req, res, next) {
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-
+	res.render('index', {title: 'Twitter Querier'});
 });
 
 router.get('/trending-tags', function(req, res, next) {
@@ -53,8 +53,6 @@ router.post('/twitter-results', function (req, res) {
 		}
 		console.log('INPUT QUERY: ' + myInput);
 
-
-		res.render('index', {title: 'Twitter Querier'});
 		//TODO: CONVERT TO STREAM INSTEAD
 		// save output to twitter object (json)-> push to array -> pass json
 		// var stream = api.stream('statuses/filter', {track: myInput});
