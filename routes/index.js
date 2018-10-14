@@ -32,8 +32,36 @@ router.get('/', function(req, res, next) {
 	res.render('index', {title: 'Twitter Querier'});
 });
 
+// send a get request to twitter endpoint to get trending tags in australia (WOEID: 23424748)
+// 
+router.get('/', function(req, res, next) { 
+	api.get('trends/place', {id: '23424748'},  function(err, data, response) {
+		// get trending hash tags
+		for (var i = 0; i < data[0].trends.length; i++) {
+			console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
+			let tag = data[0].trends[i].name;
+			tag.split();
+			if (tag[0] === '#') {
+				trendingTags.push(tag);
+			}
+		}
+	});
+	res.json(trendingTags);
+});
+
 router.get('/trending-tags', function(req, res, next) {
-  res.json(trendingTags);
+	api.get('trends/place', {id: '23424748'},  function(err, data, response) {
+		// get trending hash tags
+		for (var i = 0; i < data[0].trends.length; i++) {
+			console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
+			let tag = data[0].trends[i].name;
+			tag.split();
+			if (tag[0] === '#') {
+				trendingTags.push(tag);
+			}
+		}
+	});
+	res.json(trendingTags);
 });
 
 router.get('/twitter-results', function(req, res, next) {

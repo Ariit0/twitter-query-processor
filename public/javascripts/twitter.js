@@ -2,6 +2,16 @@ onload = function twitterFeed() {
 	$.get('/twitter-results', function (data) {
 		readFeed(data);
 	});
+
+	$.get('/trending-tags', function (data) {
+		var output = '<tr><td class="text">';
+
+		data.forEach(function (tag) {
+			output += '<button type="button" class="btn btn-outline-dark btn-sm">' + tag + '</button>';
+		});
+		output += '</td></tr>';
+		$("#trending-tags").prepend(output);
+	});
 }
 
 function sendFormContent () {
