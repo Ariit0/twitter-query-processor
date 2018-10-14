@@ -5,10 +5,14 @@ var MongoClient = require('mongodb').MongoClient;
 
 const twitcfg = require('../config/twitterconfig.json');
 
+// url to mongodb server hosted on AWS
 var uri = "mongodb://34.209.5.212:27017/CAB432-MongoDB";
-
+// sets number of search results to be displayed (remove once stream is implemented)
+var queryCount = 5;
 // store twitter feed
 var twitterFeed = []; 
+// store trending tags
+var trendingTags = [];
 
 var api = new Twit ({
 	consumer_key: twitcfg.CONSUMER_KEY,
@@ -18,74 +22,72 @@ var api = new Twit ({
 	timeout_ms: 60*1000
 });
 
-// router.use(function (req, res, next) {
-// 	console.log("Index page: /" + req.method);
-// 	next();
-// });
-// 
-// 
+router.use(function (req, res, next) {
+	console.log("Index page: /" + req.method);
+	next();
+});
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
-	res.render('index', {title: 'Twitter Querier'});
+
+});
+
+router.get('/trending-tags', function(req, res, next) {
+  res.json(trendingTags);
 });
 
 router.get('/twitter-results', function(req, res, next) {
   res.json(twitterFeed);
 });
 
-// router.post('/twitter-results', function(req, res, next) {
-//   let msg = {
-//   	ip: req.ip,
-//   	timestamp: new Date(),
-//   	text: req.body.text
-//   }
-
-//   twitterFeed.push(msg);
-//   res.json(msg);
-// });
-
 /**
  * Occurs when the user sends a POST request (search bar)
  */
 router.post('/twitter-results', function (req, res) {
 	var myInput = req.body.text;
-	if (myInput == '') {
-		console.log('INPUT QUERY: <EMTPY>');
-		res.render('index');
-		res.end();
-	}
 	myInput.split();
+	if (myInput !== '') { // must have input (should be handled on client end already)
+		// make sures theres a # in the query, otherwise append to start of input
+		if (myInput[0] !== '#') {
+			myInput = `#${myInput}`;
+		}
+		console.log('INPUT QUERY: ' + myInput);
 
-	// make sures theres a # in the query, otherwise append to start of input
-	if (myInput[0] !== '#') {
-		myInput = `#${myInput}`;
-		console.log(myInput);
-	}
-	console.log('INPUT QUERY: ' + myInput);
 
-	api.get('search/tweets', {q: myInput, count: 1, result_type: 'recent', lang: 'en', tweet_mode: 'extended'}, function(err, data, response) {
-		data.statuses.forEach(function(data) {
-				// id: data.id_str,
-				// userName: data.user.name, // set name
-				// screenName: data.user.screen_name, // twitter account name
-				// profileUrl: `https://twitter.com/${data.user.screen_name}`,
-				// createdAt: data.created_at,
-				// 
-			if (data.hasOwnProperty('retweeted_status')) {
-				var tweet = `${data.user.name} @${data.user.screen_name}: RT @ ${data.retweeted_status.user.screen_name}: ${data.retweeted_status.full_text}`;
-			} else {
-				var tweet = `${data.user.name} @${data.user.screen_name}: ${data.full_text}`;
-			}
+		res.render('index', {title: 'Twitter Querier'});
+		//TODO: CONVERT TO STREAM INSTEAD
+		// save output to twitter object (json)-> push to array -> pass json
+		// var stream = api.stream('statuses/filter', {track: myInput});
 
-			let twitterObject = {
-				input: myInput,
-				text: tweet
-			}
+		// stream.on('tweet', function(tweet) {
+		// 	console.log(tweet);
+		// });
+		api.get('search/tweets', {q: myInput, count: queryCount, result_type: 'recent', lang: 'en', tweet_mode: 'extended'}, function(err, data, response) {
+			data.statuses.forEach(function(data) {
+					// id: data.id_str,
+					// userName: data.user.name, // set name
+					// screenName: data.user.screen_name, // twitter account name
+					// profileUrl: `https://twitter.com/${data.user.screen_name}`,
+					// createdAt: data.created_at,
+					// 
+				if (data.hasOwnProperty('retweeted_status')) {
+					var tweet = `${data.user.name} @${data.user.screen_name}: RT @ ${data.retweeted_status.user.screen_name}: ${data.retweeted_status.full_text}`;
+				} else {
+					var tweet = `${data.user.name} @${data.user.screen_name}: ${data.full_text}`;
+				}
 
-			twitterFeed.push(twitterObject);
-			res.json(twitterObject);
+				var twitterObject = {
+					input: myInput,
+					text: tweet
+				}
+
+				twitterFeed.push(twitterObject);
+			});
+			res.json(twitterFeed);
+			res.end();
 		});
-	});
+	}
+
 
 
 	/**

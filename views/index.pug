@@ -12,7 +12,7 @@ block content
 
 	.container(style='margin-top:30px')
 		h1(style='margin-left: 33.33%') Hash Tag Querier 
-		form#twitter-query(method='post', action='javascript:sendFormContent()', onsubmit='javascript:reloadPage()')
+		form#twitter-query(method='post', action='javascript:sendFormContent()')
 			.form-group
 				.row
 					.col-md-10
@@ -20,45 +20,16 @@ block content
 					.col-md-2
 						button.btn.btn-default(type='submit') Search
 		.popular-tags-container
-			p Trending Tags:
-			table#popular-tags
-		.results-container(style='background-color: #C3C3C3')
-			table#twitter-results
+			.row
+				.col-md-3
+					p Trending Tags:
+				.col-md-9
+					table#popular-tags
+		.results-container
+			table#twitter-results.table.table-dark.tablehover
 
 	script(src="https://code.jquery.com/jquery-3.1.1.min.js")
 	script(src='/javascripts/twitter.js')
-
-	//- script(src="https://code.jquery.com/jquery-3.1.1.min.js")
-	//- script.
-	//- 	onload = function twitterFeed() {
-	//- 		$.get('/twitter-results', function (data) {
-	//- 			for (let i = 0; i < data.length; i++) {
-	//- 				let msg = data[i];
-	//- 				let output = '<tr class="msg">';
-	//- 				output += '<td class="name"><b>' + msg.ip + '</b></td>';
-	//- 				output += '<td class="text">' + msg.text+ '</td>';
-	//- 				output += '<td class="time"><i>' + msg.timestamp + '</i></td>';
-	//- 				output += '</tr>';
-	//- 				$("#twitter-results").prepend(output);
-	//- 			}
-	//- 		});
-	//- 	}
-	//- 	function sendFormContent () {
-	//- 		let form = $('#twitter-query');
-	//- 		let query = form.serialize();
-	//- 		$.post('/twitter-results', query, function (data) {
-	//- 			for (let i = 0; i < data.length; i++) {
-	//- 				let msg = data[i];
-	//- 				let output = '<tr class="msg">';
-	//- 				output += '<td class="name"><b>' + msg.ip + '</b></td>';
-	//- 				output += '<td class="text">' + msg.text+ '</td>';
-	//- 				output += '<td class="time"><i>' + msg.timestamp + '</i></td>';
-	//- 				output += '</tr>';
-	//- 				$("#twitter-results").prepend(output);
-	//- 			}	
-	//- 		});
-	//- 	}
-
 //- // Optional JavaScript
 //- // jQuery first, then Popper.js, then Bootstrap JS
 //- script(src='https://code.jquery.com/jquery-3.3.1.slim.min.js' integrity='sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo' crossorigin='anonymous')
