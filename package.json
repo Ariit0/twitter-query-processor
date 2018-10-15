@@ -13,7 +13,7 @@
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jquery": "^3.3.1",
-    "mongodb": "^3.1.8",
+    "mongoose": "^5.3.3",
     "morgan": "~1.9.0",
     "natural": "^0.6.1",
     "popper.js": "^1.14.4",
