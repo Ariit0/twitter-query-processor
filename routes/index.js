@@ -11,8 +11,6 @@ var queryCount = 5;
 var twitterFeed = []; 
 // store trending tags
 var trendingTags = [];
-// boolean check to run a function once 
-var once = false;
 
 var api = new Twit ({
 	consumer_key: twitcfg.CONSUMER_KEY,
@@ -27,14 +25,23 @@ router.use(function (req, res, next) {
 	next();
 });
 
-
-
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	res.render('index', {title: 'Twitter Querier'});
 });
 
 router.get('/trending-tags', function(req, res, next) {
+	res.json(trendingTags);
+});
+
+router.get('/twitter-results', function(req, res, next) {
+  res.json(twitterFeed);
+});
+
+/**
+ * This post request is called on the onload event and is run once per session
+ */
+router.post('/trending-tags', function(req, res, next) {
 	api.get('trends/place', {id: '23424748'},  function(err, data, response) {
 		// get trending hash tags
 		for (var i = 0; i < data[0].trends.length; i++) {
@@ -47,10 +54,6 @@ router.get('/trending-tags', function(req, res, next) {
 		}
 	});
 	res.json(trendingTags);
-});
-
-router.get('/twitter-results', function(req, res, next) {
-  res.json(twitterFeed);
 });
 
 /**
