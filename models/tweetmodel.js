@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 // Generate tweet schema and model
 const TweetSchema = new Schema ({
-	input: String,
-	id: Number,
+	query: String,
+	id: String,
 	userName: String,
 	screenName: String,
 	profileUrl: String,
