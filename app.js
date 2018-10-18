@@ -5,14 +5,14 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var socket_io = require('socket.io');
 
-var indexRouter = require('./routes/index')(io);
-var usersRouter = require('./routes/users');
-
 var app = express();
 
 // Socket.io
 var io = socket_io();
 app.io = io;
+
+var indexRouter = require('./routes/index')(io);
+var usersRouter = require('./routes/users');
 
 var mongoose = require('mongoose');
 

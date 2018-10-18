@@ -7,9 +7,6 @@ module.exports = function (io) {
 
 	const Tweet = require('../models/tweetmodel');
 
-	// sets number of search results to be displayed (remove once stream is implemented)
-	// store twitter feed
-	var twitterFeed = []; 
 	// store trending tags
 	var trendingTags = [];
 
@@ -35,10 +32,6 @@ module.exports = function (io) {
 		res.json(trendingTags);
 	});
 
-	router.get('/twitter-results', function(req, res, next) {
-	  res.json(twitterFeed);
-	});
-
 	/**
 	 * This post request is called on the onload event and is run once per session
 	 */
@@ -59,17 +52,20 @@ module.exports = function (io) {
 	});
 
 	/**
-	 * Occurs when the user sends a POST request (search bar)
+	 * Socket.io connection which handles twitterfeed streaming
 	 */
-	router.post('/twitter-results', function (req, res) {
-		var myInput = req.body.text;
-		myInput.split();
-		if (myInput !== '') { // must have input (should be handled on client end already)
+	io.on('connection', function (socket) {
+		socket.emit('welcome', {data: 'welcome'});
+
+		socket.on('keyword', function(data) {
+			var keyword = data.keyword;
+			keyword.split();
+
 			// make sures theres a # in the query, otherwise append to start of input
-			if (myInput[0] !== '#') {
-				myInput = `#${myInput}`;
+			if (keyword[0] !== '#') {
+				keyword = `#${keyword}`;
 			}
-			console.log('INPUT QUERY: ' + myInput);
+			console.log('INPUT QUERY: ' + keyword);
 
 			// clear records from mongodb on each query
 			try {
@@ -77,12 +73,13 @@ module.exports = function (io) {
 			} catch (e) {
 				console.log(e);
 			}
-
-			var stream = api.stream('statuses/filter', {track: myInput, language: 'en'});
+			// establish keyword tracking stream
+			var stream = api.stream('statuses/filter', {track: keyword, language: 'en'});
 
 			stream.on('tweet', function(data) { // reading stream
 				console.log(data);
 
+				// Get the full length of a tweet
 				if (data.hasOwnProperty('extended_tweet')) { 
 					//console.log(JSON.stringify(data.extended_tweet.full_text));
 					var tweetTxt = data.extended_tweet.full_text;
@@ -97,27 +94,9 @@ module.exports = function (io) {
 					var tweetTxt = data.text;
 				}
 
-
-				// 	if (data.truncated == false) {
-				// 		console.log(JSON.stringify(data.retweeted_status.extended_tweet.full_text));
-				// 		var tweet = `${data.user.name} @${data.user.screen_name}: RT @ ${data.retweeted_status.user.screen_name}: ${JSON.stringify(data.retweeted_status.full_text)}`;
-
-				// 	} else {
-				// 		console.log(JSON.stringify(data.retweeted_status.text));
-				// 		var tweet = `${data.user.name} @${data.user.screen_name}: RT @ ${data.retweeted_status.user.screen_name}: ${JSON.stringify(data.retweeted_status.full_text)}`;
-				// 	}
-
-
-				// 	var tweet = `${data.user.name} @${data.user.screen_name}: RT @ ${data.retweeted_status.user.screen_name}: ${JSON.stringify(data.retweeted_status.full_text)}`;
-
-				// } else {
-				// 	console.log(JSON.stringify(data.extended_tweet.full_text));
-				// 	var tweet = `${data.user.name} @${data.user.screen_name}: ${JSON.stringify(data.extended_tweet.full_text)}`;
-
-				// }
-
-				var twitterObject = new Tweet({
-					query: myInput,
+				// twitter content which fills the established mongodb model 
+				var tweetContent = {
+					query: keyword,
 					id: data.id_str,
 					userName: data.user.name,
 					screenName: data.user.screen_name,
@@ -125,44 +104,31 @@ module.exports = function (io) {
 					profileImgUrl: data.user.profile_image_url,
 					createdTime: data.createdAt,
 					text: tweetTxt
-				});
+				};
 
+				var twitterObject = new Tweet(tweetContent);
+
+				// store twitterobject to database
 				twitterObject.save(function (err) {
 					if (err) { // failure
 						console.log(err);
 					} else {
 						console.log('SUCCESS: Stored JSON to DB');
+						socket.emit('livetweets', {data: tweetContent});
 					}
 
 					console.log('SAVED BOYS');
 				});
+
+				socket.on('stop', function(data) {
+					connection.release();
+				});
 			});
 
-			// api.get('search/tweets', {q: myInput, count: queryCount, result_type: 'recent', lang: 'en', tweet_mode: 'extended'}, function(err, data, response) {
-			// 	data.statuses.forEach(function(data) {
-			// 			// id: data.id_str,
-			// 			// userName: data.user.name, // set name
-			// 			// screenName: data.user.screen_name, // twitter account name
-			// 			// profileUrl: `https://twitter.com/${data.user.screen_name}`,
-			// 			// createdAt: data.created_at,
-			// 			// 
-			// 		if (data.hasOwnProperty('retweeted_status')) {
-			// 			var tweet = `${data.user.name} @${data.user.screen_name}: RT @ ${data.retweeted_status.user.screen_name}: ${data.retweeted_status.full_text}`;
-			// 		} else {
-			// 			var tweet = `${data.user.name} @${data.user.screen_name}: ${data.full_text}`;
-			// 		}
-
-			// 		var twitterObject = {
-			// 			input: myInput,
-			// 			text: tweet
-			// 		}
-
-			// 		twitterFeed.push(twitterObject);
-			// 	});
-			// 	res.json(twitterFeed);
-			// 	res.end();
-			// });
-		}
+			stream.on('error', function(err) {
+				console.log(err);
+			});
+		});
 	});
 
 	return router;

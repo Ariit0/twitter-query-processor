@@ -1,7 +1,4 @@
 onload = function twitterFeed() {
-	$.get('/twitter-results', function (data) {
-		readFeed(data);
-	});
 	// Execute function once onload
 	// Sends a post request to twitter API to get trending tags and store results in middleware
 	if (sessionStorage.getItem('oneTime') === null) {
@@ -21,6 +18,27 @@ onload = function twitterFeed() {
 		sessionStorage.setItem('once', 'no');
 	}
 }
+
+/**
+ * Establish socket.io connetion once the webpage is ready
+ */
+$('document').ready(function() {
+	console.log('Loaded');
+	// connect socket to host:port
+	var socket = io.connect('http://localhost:3000');
+	$('#sub').click(function() {
+		socket.emit('keyword', {keyword: $('#keyword').val()});
+	});
+
+	socket.on('livetweets', function(data) {
+		var tweet = data.data;
+		let output = '<tr>';
+		output += '<td>' + tweet.text + '</td>';
+		output += '</tr>';
+		$('#twitter-results').prepend(output)
+	});
+});
+
 /**
  * Generates HTML ouput for trending tags
  */
@@ -33,26 +51,4 @@ function readTags(data) {
 	output += '</td></tr>';
 	$("#trending-tags").prepend(output);
 }
-/**
- * Function called for the onsubmit event when performing a search query
- */
-function sendFormContent () {
-	let form = $('#twitter-query');
-	let query = form.serialize();
-	$.post('/twitter-results', query, function (data) {
-		readFeed(data);
-	});
-}
-
-function readFeed(data) {
-	$("#twitter-results").empty();
-	for (let i = 0; i < data.length; i++) {
-		let msg = data[i];
-		let output = '<tr class="msg">';
-		output += '<td class="text">' + msg.text+ '</td>';
-		output += '</tr>';
-		$("#twitter-results").prepend(output);
-	}	
-}
-
 
