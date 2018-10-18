@@ -3,11 +3,17 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var socket_io = require('socket.io');
 
-var indexRouter = require('./routes/index');
+var indexRouter = require('./routes/index')(io);
 var usersRouter = require('./routes/users');
 
 var app = express();
+
+// Socket.io
+var io = socket_io();
+app.io = io;
+
 var mongoose = require('mongoose');
 
 // url to mongodb server hosted on AWS
@@ -40,6 +46,11 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/twitter-results', indexRouter);
 app.use('/trending-tags', indexRouter);
+
+// socket io event
+io.on('connection', function (socket) {
+	console.log('A user connected');
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
