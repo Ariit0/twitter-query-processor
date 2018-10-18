@@ -49,7 +49,7 @@ app.use('/trending-tags', indexRouter);
 
 // socket io event
 io.on('connection', function (socket) {
-	console.log('A user connected');
+	console.log('Socket.io: Connected');
 });
 
 // catch 404 and forward to error handler
@@ -67,5 +67,12 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+// debug check for eventemitter memory leak...  
+//process.on('warning',  e => console.warn(e.stack));
+
+//bad fix(?) - default capped at 10 listeners
+//process.setMaxListeners(0); 
+require('events').EventEmitter.prototype._maxListeners = 100;
 
 module.exports = app;

@@ -1,22 +1,27 @@
+const express = require('express');
+const router = express.Router();
+const Twit = require('twit');
+
+const twitcfg = require('../config/twitterconfig.json');
+
+const Tweet = require('../models/tweetmodel');
+
+// store trending tags
+var trendingTags = [];
+
+// twitter stream
+var stream = null;
+
+var api = new Twit ({
+	consumer_key: twitcfg.CONSUMER_KEY,
+	consumer_secret: twitcfg.CONSUMER_SECRET,
+	access_token: twitcfg.ACCESS_TOKEN,
+	access_token_secret: twitcfg.ACCESS_TOKEN_SECRET,
+	timeout_ms: 60*1000
+});
+
+
 module.exports = function (io) {
-	const express = require('express');
-	const router = express.Router();
-	const Twit = require('twit');
-
-	const twitcfg = require('../config/twitterconfig.json');
-
-	const Tweet = require('../models/tweetmodel');
-
-	// store trending tags
-	var trendingTags = [];
-
-	var api = new Twit ({
-		consumer_key: twitcfg.CONSUMER_KEY,
-		consumer_secret: twitcfg.CONSUMER_SECRET,
-		access_token: twitcfg.ACCESS_TOKEN,
-		access_token_secret: twitcfg.ACCESS_TOKEN_SECRET,
-		timeout_ms: 60*1000
-	});
 
 	router.use(function (req, res, next) {
 		console.log("Index page: /" + req.method);
@@ -37,7 +42,8 @@ module.exports = function (io) {
 	 */
 	router.post('/trending-tags', function(req, res, next) {
 		// ID 23424748 tracks trending tags in australia
-		api.get('trends/place', {id: '23424748'},  function(err, data, response) {
+		// ID 2459115 for new york (for more traffic)
+		api.get('trends/place', {id: '2459115'},  function(err, data, response) {
 			// get trending hash tags
 			for (var i = 0; i < data[0].trends.length; i++) {
 				console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
@@ -55,7 +61,6 @@ module.exports = function (io) {
 	 * Socket.io connection which handles twitterfeed streaming
 	 */
 	io.on('connection', function (socket) {
-		socket.emit('welcome', {data: 'welcome'});
 
 		socket.on('keyword', function(data) {
 			var keyword = data.keyword;
@@ -73,12 +78,17 @@ module.exports = function (io) {
 			} catch (e) {
 				console.log(e);
 			}
-			// establish keyword tracking stream
-			var stream = api.stream('statuses/filter', {track: keyword, language: 'en'});
+
+			// checks for existing stream and closes it before establishing a new connection
+			if (stream != null) {
+				stream.stop();
+				stream = api.stream('statuses/filter', {track: keyword, language: 'en'});
+			} else {
+				stream = api.stream('statuses/filter', {track: keyword, language: 'en'});
+			}
 
 			stream.on('tweet', function(data) { // reading stream
-				console.log(data);
-
+				//console.log(data);
 				// Get the full length of a tweet
 				if (data.hasOwnProperty('extended_tweet')) { 
 					//console.log(JSON.stringify(data.extended_tweet.full_text));
@@ -93,7 +103,6 @@ module.exports = function (io) {
 				} else {
 					var tweetTxt = data.text;
 				}
-
 				// twitter content which fills the established mongodb model 
 				var tweetContent = {
 					query: keyword,
@@ -105,24 +114,30 @@ module.exports = function (io) {
 					createdTime: data.createdAt,
 					text: tweetTxt
 				};
-
+				// create an instance of model Tweet
 				var twitterObject = new Tweet(tweetContent);
-
 				// store twitterobject to database
 				twitterObject.save(function (err) {
 					if (err) { // failure
 						console.log(err);
 					} else {
+						console.log(keyword);
 						console.log('SUCCESS: Stored JSON to DB');
 						socket.emit('livetweets', {data: tweetContent});
 					}
-
-					console.log('SAVED BOYS');
 				});
 
 				socket.on('stop', function(data) {
 					connection.release();
 				});
+			});
+
+			stream.on('connect', function(req) {
+				console.log('Connected to twitter stream');
+			});
+
+			stream.on('disconnect', function(req) {
+				console.log('Disconnected from twitter stream');
 			});
 
 			stream.on('error', function(err) {
