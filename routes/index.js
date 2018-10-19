@@ -73,11 +73,11 @@ module.exports = function (io) {
 			console.log('INPUT QUERY: ' + keyword);
 
 			// clear records from mongodb on each query
-			try {
-				Tweet.collection.drop();
-			} catch (e) {
-				console.log(e);
-			}
+			// try {
+			// 	Tweet.collection.drop();
+			// } catch (e) {
+			// 	console.log(e);
+			// }
 
 			// checks for existing stream and closes it before establishing a new connection
 			if (stream != null) {
