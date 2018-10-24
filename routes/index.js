@@ -6,6 +6,13 @@ const twitcfg = require('../config/twitterconfig.json');
 
 const Tweet = require('../models/tweetmodel');
 
+// Natural Packages
+var natural = require('natural');
+var Analyzer = natural.SentimentAnalyzer;
+var stemmer = natural.PorterStemmer;
+var analyzer = new Analyzer("English", stemmer, "afinn"); // afinn, senticon, and pattern (types of vocab)
+var tokenizer = new natural.WordTokenizer();
+
 // store trending tags
 var trendingTags = [];
 
@@ -103,6 +110,12 @@ module.exports = function (io) {
 				} else {
 					var tweetTxt = data.text;
 				}
+				
+				var tokenized_text = tokenizer.tokenize(data.text);
+				// console.log(tokenized_text);
+				var senti_score = analyzer.getSentiment(tokenized_text);
+				// console.log(senti_score);
+
 				// twitter content which fills the established mongodb model 
 				var tweetContent = {
 					query: keyword,
@@ -112,7 +125,8 @@ module.exports = function (io) {
 					profileUrl: `https://twitter.com/${data.user.screen_name}`,
 					profileImgUrl: data.user.profile_image_url,
 					createdTime: data.createdAt,
-					text: tweetTxt
+					text: tweetTxt,
+					score: senti_score
 				};
 				// create an instance of model Tweet
 				var twitterObject = new Tweet(tweetContent);

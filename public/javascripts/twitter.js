@@ -34,6 +34,7 @@ $('document').ready(function() {
 		var tweet = data.data;
 		let output = '<tr>';
 		output += '<td>' + tweet.text + '</td>';
+		output += '<td>' + tweet.score + '</td>';
 		output += '</tr>';
 		$('#twitter-results').prepend(output)
 	});
