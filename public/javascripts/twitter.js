@@ -34,7 +34,7 @@ $('document').ready(function() {
 		var tweet = data.data;
 		let output = '<tr>';
 		output += '<td>' + tweet.text + '</td>';
-		output += '<td>' + tweet.score + '</td>';
+		output += '<td>' + emojifyScore(tweet.score) + '</td>';
 		output += '</tr>';
 		$('#twitter-results').prepend(output)
 	});
@@ -53,3 +53,15 @@ function readTags(data) {
 	$("#trending-tags").prepend(output);
 }
 
+function emojifyScore(score) {
+	var emoji;
+
+	if(score < 0) {
+		emoji = "😰";
+	} else if(score > 0) {
+		emoji = "🙂";
+	} else {
+		emoji = "😑";
+	}
+	return emoji;
+}
