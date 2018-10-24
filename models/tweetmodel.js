@@ -10,7 +10,8 @@ const TweetSchema = new Schema ({
 	profileUrl: String,
 	profileImgUrl: String,
 	createdTime: Date,
-	text: String
+	text: String,
+	score: Number
 });
 
 const Tweet = mongoose.model('TwitterFeed', TweetSchema);
