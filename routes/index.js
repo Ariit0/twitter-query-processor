@@ -82,7 +82,7 @@ module.exports = function (io) {
 				}
 				console.log(trackedTags);
 			} else { // single tag query
-				trackedTags[0] = `#${keyword}`;
+				trackedTags[0] = `#${query}`;
 				console.log(trackedTags);
 			}
 
@@ -143,7 +143,6 @@ module.exports = function (io) {
 					if (err) { // failure
 						console.log(err);
 					} else {
-						console.log(keyword);
 						console.log('SUCCESS: Stored JSON to DB');
 						socket.emit('livetweets', {data: tweetContent});
 					}
