@@ -44,12 +44,12 @@ $('document').ready(function() {
  * Generates HTML ouput for trending tags
  */
 function readTags(data) {
-	var output = '<tr><td class="text">';
+	var output = '<tr>';
 
 	data.forEach(function (tag) {
-		output += '<button type="button" class="btn btn-outline-dark btn-sm">' + tag + '</button>';
+		output += '<td class="text"><button type="button" class="btn btn-outline-dark btn-sm">' + tag + '</button></td>';
 	});
-	output += '</td></tr>';
+	output += '</tr>';
 	$("#trending-tags").prepend(output);
 }
 
