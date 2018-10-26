@@ -27,6 +27,7 @@ $('document').ready(function() {
 	// connect socket to host:port
 	var socket = io.connect('http://localhost:3000');
 	$('#sub').click(function() {
+		$('#twitter-results').empty();
 		socket.emit('keyword', {keyword: $('#keyword').val()});
 	});
 
@@ -36,7 +37,7 @@ $('document').ready(function() {
 		output += '<td>' + tweet.text + '</td>';
 		output += '<td>' + emojifyScore(tweet.score) + '</td>';
 		output += '</tr>';
-		$('#twitter-results').prepend(output)
+		$('#twitter-results').prepend(output);
 	});
 });
 
