@@ -15,6 +15,7 @@ var tokenizer = new natural.WordTokenizer();
 
 // store trending tags
 var trendingTags = [];
+var trackedTags = [];
 
 // twitter stream
 var stream = null;
@@ -70,14 +71,22 @@ module.exports = function (io) {
 	io.on('connection', function (socket) {
 
 		socket.on('keyword', function(data) {
-			var keyword = data.keyword;
-			keyword.split();
+			var query = data.keyword;
 
-			// make sures theres a # in the query, otherwise append to start of input
-			if (keyword[0] !== '#') {
-				keyword = `#${keyword}`;
+			// store query into array for tracking 
+			if (query.indexOf(',') > -1) { // multi-tag query
+				var res = query.split(',');
+
+				for (var i = 0; i < res.length; i++) {
+					trackedTags[i] = `#${res[i]}`;
+				}
+				console.log(trackedTags);
+			} else { // single tag query
+				trackedTags[0] = `#${keyword}`;
+				console.log(trackedTags);
 			}
-			console.log('INPUT QUERY: ' + keyword);
+
+			console.log('INPUT QUERY: ' + trackedTags);
 
 			// clear records from mongodb on each query
 			// try {
@@ -89,13 +98,12 @@ module.exports = function (io) {
 			// checks for existing stream and closes it before establishing a new connection
 			if (stream != null) {
 				stream.stop();
-				stream = api.stream('statuses/filter', {track: keyword, language: 'en'});
+				stream = api.stream('statuses/filter', {track: trackedTags, language: 'en'});
 			} else {
-				stream = api.stream('statuses/filter', {track: keyword, language: 'en'});
+				stream = api.stream('statuses/filter', {track: trackedTags, language: 'en'});
 			}
 
 			stream.on('tweet', function(data) { // reading stream
-				//console.log(data);
 				// Get the full length of a tweet
 				if (data.hasOwnProperty('extended_tweet')) { 
 					//console.log(JSON.stringify(data.extended_tweet.full_text));
@@ -118,7 +126,7 @@ module.exports = function (io) {
 
 				// twitter content which fills the established mongodb model 
 				var tweetContent = {
-					query: keyword,
+					query: trackedTags, // remove later
 					id: data.id_str,
 					userName: data.user.name,
 					screenName: data.user.screen_name,

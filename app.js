@@ -73,6 +73,6 @@ app.use(function(err, req, res, next) {
 
 //bad fix(?) - default capped at 10 listeners
 //process.setMaxListeners(0); 
-require('events').EventEmitter.prototype._maxListeners = 100;
+require('events').EventEmitter.prototype._maxListeners = 0;
 
 module.exports = app;
