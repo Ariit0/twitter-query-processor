@@ -19,13 +19,17 @@ block content
 						input.form-control(type='text' name='keyword' id='keyword' placeholder='#Insert Hashtag Query')
 					.col-md-2
 						button.btn.btn-default(id='sub' name='sumbitDetails' class='' value='Search') Search
-		.popular-tags-container
-			p Trending Tags:
-			.row
-				.col-md-12
-					table#trending-tags
-		.results-container
-			table#twitter-results.table.table-dark.tablehover
+		.tags
+			h5 Trending Tags:
+			.popular-tags-container
+				.row
+					.col-md-12
+						table#trending-tags
+		br
+		.results
+			h5 Live Twitter Feed:
+			.results-container
+				table#twitter-results.table.table-dark.tablehover
 
 	script(src="https://code.jquery.com/jquery-3.1.1.min.js")
 	script(src='/javascripts/twitter.js')

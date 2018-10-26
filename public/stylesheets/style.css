@@ -1,0 +1,13 @@
+.results-container {
+	background-color: #343A40;
+	width: 35%;
+	height: 600px;
+	overflow-y: auto;
+}
+
+.popular-tags-container {
+	width: 100%;
+	height: 110px;
+	overflow-y: auto;
+}
+
