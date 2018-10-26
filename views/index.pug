@@ -10,7 +10,7 @@ block content
 				li.nav-item
 					a.nav-link(href='/') Home
 
-	.container(style='margin-top:30px')
+	.container
 		h1(style='margin-left: 33.33%') Hash Tag Querier 
 		form#twitter-query(method='post', action='javascript:sendFormContent()')
 			.form-group
@@ -25,11 +25,15 @@ block content
 				.row
 					.col-md-12
 						table#trending-tags
-		br
-		.results
-			h5 Live Twitter Feed:
-			.results-container
-				table#twitter-results.table.table-dark.tablehover
+		.row
+			.results.col-md-4
+				h5 Live Twitter Feed:
+				.results-container
+					table#twitter-results.table.table-dark.tablehover
+			.analytics.col-md-8
+				h5 Analytics:
+				.analytics-container
+					table#analytics-results
 
 	script(src="https://code.jquery.com/jquery-3.1.1.min.js")
 	script(src='/javascripts/twitter.js')
