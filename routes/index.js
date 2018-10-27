@@ -77,11 +77,11 @@ module.exports = function (io) {
 				var res = query.split(',');
 
 				for (var i = 0; i < res.length; i++) {
-					trackedTags[i] = `#${res[i]}`;
+					trackedTags[i] = `${res[i]}`;
 				}
 				console.log(trackedTags);
 			} else { // single tag query
-				trackedTags[0] = `#${query}`;
+				trackedTags[0] = `${query}`;
 				console.log(trackedTags);
 			}
 
