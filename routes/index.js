@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Twit = require('twit');
-
 const twitcfg = require('../config/twitterconfig.json');
-
-const Tweet = require('../models/tweetmodel');
+const mongoose = require('mongoose');
+const TweetSchema = require('../models/tweetmodel');
 
 // Natural Packages
 var natural = require('natural');
@@ -88,13 +87,6 @@ module.exports = function (io) {
 
 			console.log('INPUT QUERY: ' + trackedTags);
 
-			// clear records from mongodb on each query
-			// try {
-			// 	Tweet.collection.drop();
-			// } catch (e) {
-			// 	console.log(e);
-			// }
-
 			// checks for existing stream and closes it before establishing a new connection
 			if (stream != null) {
 				stream.stop();
@@ -136,7 +128,10 @@ module.exports = function (io) {
 					text: tweetTxt,
 					score: senti_score
 				};
+
 				// create an instance of model Tweet
+				const Tweet = mongoose.model(trackedTags[0], TweetSchema);
+
 				var twitterObject = new Tweet(tweetContent);
 				// store twitterobject to database
 				twitterObject.save(function (err) {

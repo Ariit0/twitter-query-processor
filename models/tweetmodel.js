@@ -14,6 +14,6 @@ const TweetSchema = new Schema ({
 	score: Number
 });
 
-const Tweet = mongoose.model('TwitterFeed', TweetSchema);
+//const Tweet = mongoose.model('Tweets', TweetSchema);
 
-module.exports = Tweet;
+module.exports = TweetSchema;
