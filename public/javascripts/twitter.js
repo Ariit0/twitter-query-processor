@@ -48,7 +48,7 @@ function readTags(data) {
 	var output = '<tr>';
 
 	data.forEach(function (tag) {
-		output += '<td class="text"><button type="button" class="btn btn-outline-dark btn-sm">' + tag + '</button></td>';
+		output += '<td class="text"><button type="button" value="'+ tag +'" class="btn btn-outline-dark btn-sm" onClick="autoFill(this);">' + tag + '</button></td>';
 	});
 	output += '</tr>';
 	$("#trending-tags").prepend(output);
@@ -65,4 +65,12 @@ function emojifyScore(score) {
 		emoji = "😑";
 	}
 	return emoji;
+}
+
+function autoFill(buttonObject) {
+	if(!$("#keyword").val()) {
+		$("#keyword").val(buttonObject.value);
+	} else {
+		$("#keyword").val($("#keyword").val() + "," + buttonObject.value);
+	}
 }
