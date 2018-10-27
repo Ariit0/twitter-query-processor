@@ -57,9 +57,9 @@ module.exports = function (io) {
 				console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
 				let tag = data[0].trends[i].name;
 				tag.split();
-				if (tag[0] === '#') {
+				//if (tag[0] === '#') {
 					trendingTags.push(tag);
-				}
+				//}
 			}
 		});
 		res.json(trendingTags);
