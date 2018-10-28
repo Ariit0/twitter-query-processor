@@ -71,7 +71,7 @@ app.use(function(err, req, res, next) {
 // debug check for eventemitter memory leak...  
 //process.on('warning',  e => console.warn(e.stack));
 
-//bad fix(?) - default capped at 10 listeners
+//bad fix(?) - default capped at 10 listeners | 0 = infinite
 //process.setMaxListeners(0); 
 require('events').EventEmitter.prototype._maxListeners = 0;
 

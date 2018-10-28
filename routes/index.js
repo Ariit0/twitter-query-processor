@@ -27,9 +27,7 @@ var api = new Twit ({
 	timeout_ms: 60*1000
 });
 
-
 module.exports = function (io) {
-
 	router.use(function (req, res, next) {
 		console.log("Index page: /" + req.method);
 		next();
@@ -56,9 +54,11 @@ module.exports = function (io) {
 				console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
 				let tag = data[0].trends[i].name;
 				tag.split();
-				//if (tag[0] === '#') {
+				if (tag[0] === '#') {
 					trendingTags.push(tag);
-				//}
+				} else { // convert non-tags to tags
+					trendingTags.push(`#${tag.replace(/\s+/g,'')}`);
+				}
 			}
 		});
 		res.json(trendingTags);
@@ -71,17 +71,25 @@ module.exports = function (io) {
 
 		socket.on('keyword', function(data) {
 			var query = data.keyword;
-
+			//query = query.trim();
 			// store query into array for tracking 
 			if (query.indexOf(',') > -1) { // multi-tag query
 				var res = query.split(',');
-
+				// ensures # is at the start of a query
 				for (var i = 0; i < res.length; i++) {
-					trackedTags[i] = `${res[i]}`;
+					if (res[i].charAt(0) !== '#') {
+						trackedTags[i] = `#${res[i]}`;
+					} else {
+						trackedTags[i] = `${res[i]}`;
+					}
 				}
 				console.log(trackedTags);
 			} else { // single tag query
-				trackedTags[0] = `${query}`;
+				if (query.charAt(0) !== '#') {
+					trackedTags[0] = `#${query}`;
+				} else {
+					trackedTags[0] = `${query}`;
+				}
 				console.log(trackedTags);
 			}
 
@@ -96,6 +104,8 @@ module.exports = function (io) {
 			}
 
 			stream.on('tweet', function(data) { // reading stream
+				var index = 0;
+
 				// Get the full length of a tweet
 				if (data.hasOwnProperty('extended_tweet')) { 
 					//console.log(JSON.stringify(data.extended_tweet.full_text));
@@ -104,8 +114,10 @@ module.exports = function (io) {
 					//console.log(JSON.stringify(data.retweeted_status.extended_tweet.full_text));
 					if (data.retweeted_status.truncated == true) {
 						var tweetTxt = data.retweeted_status.extended_tweet.full_text;
+						//console.log(data);
 					} else {
 						var tweetTxt = data.retweeted_status.text;
+						//console.log(data);
 					}
 				} else {
 					var tweetTxt = data.text;
@@ -116,9 +128,39 @@ module.exports = function (io) {
 				var senti_score = analyzer.getSentiment(tokenized_text);
 				// console.log(senti_score);
 
+				/**
+				 * Establishes what tag belongs to the tweet content to save to database
+				 */
+				for (var i = 0; i < trackedTags.length; i++) {
+					// insert ? at the 2nd character positon of the tracked tag for regex expression: 0 or 1
+					var tmp = [trackedTags[i].slice(0, 1),"?",trackedTags[i].slice(1)].join('');
+					var regex = new RegExp(`${tmp.toLowerCase()}`);
+
+					if (regex.test(tweetTxt.toLowerCase()) === true) { // matches -> break out of loop
+						index = i;
+						break;
+					} else {
+						// in the event where the retweet does not contain the tracked tag, check the quoted message
+						// this happens when the quoted tweet is being tracked and not the retweet message
+						if (data.hasOwnProperty('retweeted_status') && data.hasOwnProperty('quoted_status')) { 
+							if (data.quoted_status.truncated == true) {
+								var quoteExTxt = data.quoted_status.extended_tweet.full_text;
+								if (regex.test(quoteExTxt.toLowerCase()) === true) {
+									break;
+								}
+							} else {
+								var quoteTxt = data.quoted_status.text;
+								if (regex.test(quoteTxt.toLowerCase()) === true) {
+									break;
+								}
+							}
+						}
+					}
+				}
+
 				// twitter content which fills the established mongodb model 
 				var tweetContent = {
-					query: trackedTags, // remove later
+					query: trackedTags[index], // remove later
 					id: data.id_str,
 					userName: data.user.name,
 					screenName: data.user.screen_name,
@@ -130,7 +172,31 @@ module.exports = function (io) {
 				};
 
 				// create an instance of model Tweet
-				const Tweet = mongoose.model(trackedTags[0], TweetSchema);
+				// different tags are stored in different collections
+				const Tweet = mongoose.model(`${trackedTags[index]}`, TweetSchema);
+				//try {
+					// get list of collections on mongodb server
+					// mongoose.connection.db.listCollections().toArray(function (err, names) {
+					// 	for (var i = 0; i < names.length; i++) {
+					// 		console.log(names[i]['name']);
+					// 		//if (trackedTags == names[i]['name']) 
+					// 	}
+					// });
+
+
+					// Tweet.find({}).then(res => {
+					// 	console.log(typeof(res));
+					// 	console.log(res.length);
+						
+					// 	if (res.length <= 0) {
+					// 		console.log('Tag does not exist on DB, creating new collection...');
+					// 	} else {
+					// 		console.log('Tag already exists...');
+					// 	}
+					// });
+				// } catch (e) {
+				// 	console.log(e);
+				// }
 
 				var twitterObject = new Tweet(tweetContent);
 				// store twitterobject to database
