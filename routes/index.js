@@ -19,6 +19,9 @@ var trackedTags = [];
 // twitter stream
 var stream = null;
 
+// Connected clients
+var socketInfo = {};
+
 var api = new Twit ({
 	consumer_key: twitcfg.CONSUMER_KEY,
 	consumer_secret: twitcfg.CONSUMER_SECRET,
@@ -69,8 +72,17 @@ module.exports = function (io) {
 	 */
 	io.on('connection', function (socket) {
 
+		socketInfo[socket.id] = [];
+		socketInfo[socket.id].socket = socket;
+		socketInfo[socket.id].tags = []; // Store tags here
+
+		console.log(socketInfo);
+
 		socket.on('keyword', function(data) {
 			var query = data.keyword;
+			socketInfo[socket.id].tags = (data.keyword.split(',')); // Add tag/keyword to socket info
+			// console.log(socket.id + "has" + socketInfo[socket.id].tags);
+			
 			//query = query.trim();
 			// store query into array for tracking 
 			if (query.indexOf(',') > -1) { // multi-tag query
@@ -78,21 +90,26 @@ module.exports = function (io) {
 				// ensures # is at the start of a query
 				for (var i = 0; i < res.length; i++) {
 					if (res[i].charAt(0) !== '#') {
-						trackedTags[i] = `#${res[i]}`;
+						// trackedTags[i] = `#${res[i]}`;
+						trackedTags.push(`#${res[i]}`);
 					} else {
-						trackedTags[i] = `${res[i]}`;
+						// trackedTags[i] = `${res[i]}`;
+						trackedTags.push(`${res[i]}`);
 					}
 				}
 				console.log(trackedTags);
 			} else { // single tag query
 				if (query.charAt(0) !== '#') {
-					trackedTags[0] = `#${query}`;
+					// trackedTags[0] = `#${query}`;
+					trackedTags.push(`#${query}`);
 				} else {
-					trackedTags[0] = `${query}`;
+					// trackedTags[0] = `${query}`;
+					trackedTags.push(`${query}`);
 				}
 				console.log(trackedTags);
 			}
-
+			
+			trackedTags = trackedTags.filter((v, i, a) => a.indexOf(v) === i);
 			console.log('INPUT QUERY: ' + trackedTags);
 
 			// checks for existing stream and closes it before establishing a new connection
@@ -205,7 +222,18 @@ module.exports = function (io) {
 						console.log(err);
 					} else {
 						console.log('SUCCESS: Stored JSON to DB');
-						socket.emit('livetweets', {data: tweetContent});
+						for(var sock in socketInfo) {
+							// console.log(socketInfo[sock].tags); // Tags of the client
+							for(var i = 0; i < socketInfo[sock].tags.length; i++) {
+								// console.log("The query is ", tweetContent.query);
+								// console.log("The tag is ", socketInfo[sock].tags[i]);
+								if(tweetContent.query == socketInfo[sock].tags[i]) {
+									socketInfo[sock].socket.emit('livetweets', {data: tweetContent});
+									// console.log("Client contains tag	");
+								}
+							}
+						}
+						// socket.emit('livetweets', {data: tweetContent});
 					}
 				});
 
