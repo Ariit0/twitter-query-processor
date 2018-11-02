@@ -54,7 +54,7 @@ module.exports = function (io) {
 		api.get('trends/place', {id: '2459115'},  function(err, data, response) {
 			// get trending hash tags
 			for (var i = 0; i < data[0].trends.length; i++) {
-				console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
+				//console.log(JSON.stringify(data[0].trends[i].name, undefined, 2));
 				let tag = data[0].trends[i].name;
 				tag.split();
 				if (tag[0] === '#') {
@@ -76,8 +76,15 @@ module.exports = function (io) {
 		socketInfo[socket.id].socket = socket;
 		socketInfo[socket.id].tags = []; // Store tags here
 
-		console.log(socketInfo);
+		//console.log(socketInfo);
 
+
+		socket.on('disconnect', function() {
+			console.log(`${socketInfo[socket.id].socket} Disconnected`); // [object object] ??
+
+			if (stream != null) stream.stop(); // this stops the stream for all users (we dont want that)
+		});
+		
 		socket.on('keyword', function(data) {
 			var query = data.keyword;
 			socketInfo[socket.id].tags = []; // Clean the current tags
@@ -100,7 +107,7 @@ module.exports = function (io) {
 						socketInfo[socket.id].tags.push(`${res[i]}`);
 					}
 				}
-				console.log(trackedTags);
+				//console.log(trackedTags);
 			} else { // single tag query
 				if (query.charAt(0) !== '#') {
 					// trackedTags[0] = `#${query}`;
@@ -111,7 +118,7 @@ module.exports = function (io) {
 					trackedTags.push(`${query}`);
 					socketInfo[socket.id].tags.push(`${query}`);
 				}
-				console.log(trackedTags);
+				//console.log(trackedTags);
 			}
 			
 			trackedTags = trackedTags.filter((v, i, a) => a.indexOf(v) === i);
@@ -226,7 +233,7 @@ module.exports = function (io) {
 					if (err) { // failure
 						console.log(err);
 					} else {
-						console.log('SUCCESS: Stored JSON to DB');
+						//console.log('SUCCESS: Stored JSON to DB');
 						for(var sock in socketInfo) {
 							// console.log(socketInfo[sock].tags); // Tags of the client
 							for(var i = 0; i < socketInfo[sock].tags.length; i++) {
