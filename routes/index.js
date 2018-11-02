@@ -80,7 +80,8 @@ module.exports = function (io) {
 
 		socket.on('keyword', function(data) {
 			var query = data.keyword;
-			socketInfo[socket.id].tags = (data.keyword.split(',')); // Add tag/keyword to socket info
+			socketInfo[socket.id].tags = []; // Clean the current tags
+			// socketInfo[socket.id].tags = (data.keyword.split(',')); // Add tag/keyword to socket info
 			// console.log(socket.id + "has" + socketInfo[socket.id].tags);
 			
 			//query = query.trim();
@@ -92,9 +93,11 @@ module.exports = function (io) {
 					if (res[i].charAt(0) !== '#') {
 						// trackedTags[i] = `#${res[i]}`;
 						trackedTags.push(`#${res[i]}`);
+						socketInfo[socket.id].tags.push(`#${res[i]}`);
 					} else {
 						// trackedTags[i] = `${res[i]}`;
 						trackedTags.push(`${res[i]}`);
+						socketInfo[socket.id].tags.push(`${res[i]}`);
 					}
 				}
 				console.log(trackedTags);
@@ -102,9 +105,11 @@ module.exports = function (io) {
 				if (query.charAt(0) !== '#') {
 					// trackedTags[0] = `#${query}`;
 					trackedTags.push(`#${query}`);
+					socketInfo[socket.id].tags.push(`#${query}`);
 				} else {
 					// trackedTags[0] = `${query}`;
 					trackedTags.push(`${query}`);
+					socketInfo[socket.id].tags.push(`${query}`);
 				}
 				console.log(trackedTags);
 			}
