@@ -49,7 +49,7 @@ app.use('/trending-tags', indexRouter);
 
 // socket io event
 io.on('connection', function (socket) {
-	console.log('Socket.io: Connected');
+	console.log('Socket.io Status: Online');
 });
 
 // catch 404 and forward to error handler
