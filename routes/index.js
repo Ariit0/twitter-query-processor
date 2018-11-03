@@ -95,14 +95,28 @@ module.exports = function (io) {
 						if(trackedTags[word] == socketInfo[sock].tags[i]) {
 							newTags.push(trackedTags[word])
 							deleteFlag = false;
-							break;
+						break;
 						}
 					}
 					if(!deleteFlag) break;
 				}
+				if(deleteFlag) {
+					try {
+						// Delete tracked word collection
+						mongoose.connection.db.dropCollection(trackedTags[word].toLowerCase()+"s", function(err, result) {
+							if(err) {
+								console.log("Failed to delete in database");
+							} else {
+								console.log("Deleted successfully");
+							}
+						});
+					} catch (e) {
+						console.log(e);
+					}
+				}
 			}
 			console.log(newTags);
-			trackedTags = newTags;
+			trackedTags = newTags;			
 		});
 		
 		socket.on('keyword', function(data) {
