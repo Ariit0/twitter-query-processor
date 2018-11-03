@@ -24,8 +24,8 @@ onload = function twitterFeed() {
  */
 $('document').ready(function() {
 	console.log('Loaded');
-	// connect socket to host:port
-	var socket = io.connect('http://localhost:3000');
+	// connect socket client
+	var socket = io();
 	$('#sub').click(function() {
 		$('#twitter-results').empty();
 		socket.emit('keyword', {keyword: $('#keyword').val()});
