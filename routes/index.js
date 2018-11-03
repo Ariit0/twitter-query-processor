@@ -81,10 +81,11 @@ module.exports = function (io) {
 
 		socket.on('disconnect', function() {
 			console.log(`${socketInfo[socket.id].socket} Disconnected`); // [object object] ??
-
+			delete socketInfo[socket.id];
 			// console.log(socketInfo); // Check if the socket disappeared
 			// if (stream != null) stream.stop(); // this stops the stream for all users (we dont want that)
 
+			var newTags = [];
 			for(var word in trackedTags) {
 				var deleteFlag = true;
 				// console.log(trackedTags[word]);
@@ -92,20 +93,16 @@ module.exports = function (io) {
 					// console.log(socketInfo[sock].tags); // Tags of the client
 					for(var i = 0; i < socketInfo[sock].tags.length; i++) {
 						if(trackedTags[word] == socketInfo[sock].tags[i]) {
+							newTags.push(trackedTags[word])
 							deleteFlag = false;
 							break;
 						}
 					}
 					if(!deleteFlag) break;
 				}
-				if(deleteFlag) {
-				console.log("Deleting" + trackedTags[word]);
-				trackedTags.splice(trackedTags.indexOf(trackedTags[word]), 1);
-				}
 			}
-
-			// console.log(trackedTags);
-			delete socketInfo[socket.id];
+			console.log(newTags);
+			trackedTags = newTags;
 		});
 		
 		socket.on('keyword', function(data) {
