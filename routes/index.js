@@ -267,7 +267,7 @@ module.exports = function (io) {
 					if (err) { // failure
 						console.log(err);
 					} else {
-						//console.log('SUCCESS: Stored JSON to DB');
+						console.log('SUCCESS: Stored JSON to DB');
 						for(var sock in socketInfo) {
 							// console.log(socketInfo[sock].tags); // Tags of the client
 							for(var i = 0; i < socketInfo[sock].tags.length; i++) {
