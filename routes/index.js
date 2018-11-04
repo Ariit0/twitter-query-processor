@@ -163,11 +163,21 @@ module.exports = function (io) {
 				if(deleteFlag) {
 					try {
 						// Delete tracked word collection
-						mongoose.connection.db.dropCollection(trackedTags[word].toLowerCase()+"s", function(err, result) {
+						// 
+						var collection = trackedTags[word].toLowerCase();
+
+						// if the last character of the tracked tag ends with a numeric value or  letter s
+						if (/[0-9s]/g.test(collection.slice(-1))) {
+							var delCollection = collection;
+						} else {
+							var delCollection = `${collection}s`
+						}
+
+						mongoose.connection.db.dropCollection(delCollection, function(err, result) {
 							if(err) {
-								console.log("Failed to delete in database");
+								console.log(`Failed to delete: ${delCollection} in database`);
 							} else {
-								console.log("Deleted successfully");
+								console.log(`${delCollection}: Deleted successfully`);
 							}
 						});
 					} catch (e) {
