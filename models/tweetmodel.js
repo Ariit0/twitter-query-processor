@@ -9,7 +9,6 @@ const TweetSchema = new Schema ({
 	screenName: String,
 	profileUrl: String,
 	profileImgUrl: String,
-	createdTime: Date,
 	text: String,
 	score: Number
 });

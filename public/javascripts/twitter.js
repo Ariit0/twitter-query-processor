@@ -30,12 +30,13 @@ $('document').ready(function() {
 		$('#twitter-results').empty();
 		socket.emit('keyword', {keyword: $('#keyword').val()});
 	});
-
+	// create twitter feed table
 	socket.on('livetweets', function(data) {
 		var tweet = data.data;
 		let output = '<tr>';
-		output += '<td>' + tweet.text + '</td>';
-		output += '<td>' + emojifyScore(tweet.score) + '</td>';
+		output += '<td class="tweetProfileImage"><img src="'+ tweet.profileImgUrl +'"alt="pfp"></td>'
+		output += '<td class="tweetText"><div class="outer"><div class="innerTweetContent" id="tweetUserName"><a href="'+tweet.profileUrl+'">'+tweet.userName+' @'+tweet.screenName+'</a></div><div class="innerTweetContent">' + tweet.text + '</div></div></td>';
+		output += '<td class="sentRes">' + emojifyScore(tweet.score) + '</td>';
 		output += '</tr>';
 		$('#twitter-results').prepend(output);
 	});

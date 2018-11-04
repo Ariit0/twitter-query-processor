@@ -268,7 +268,6 @@ module.exports = function (io) {
 					screenName: data.user.screen_name,
 					profileUrl: `https://twitter.com/${data.user.screen_name}`,
 					profileImgUrl: data.user.profile_image_url,
-					createdTime: data.createdAt,
 					text: tweetTxt,
 					score: senti_score
 				};
