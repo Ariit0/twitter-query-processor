@@ -35,12 +35,29 @@ $('document').ready(function() {
 		var tweet = data.data;
 		let output = '<tr>';
 		output += '<td class="tweetProfileImage"><img src="'+ tweet.profileImgUrl +'"alt="pfp"></td>'
-		output += '<td class="tweetText"><div class="outer"><div class="innerTweetContent" id="tweetUserName"><a href="'+tweet.profileUrl+'">'+tweet.userName+' @'+tweet.screenName+'</a></div><div class="innerTweetContent">' + tweet.text + '</div></div></td>';
+		output += '<td class="tweetText"><div class="outer"><div class="innerTweetContent" id="tweetUserName"><a href="'+tweet.profileUrl+'" target="_blank">'+tweet.userName+' @'+tweet.screenName+'</a></div><div class="innerTweetContent">' + tweet.text + '</div></div></td>';
 		output += '<td class="sentRes">' + emojifyScore(tweet.score) + '</td>';
 		output += '</tr>';
+		$('#overall-feeling').empty().append(`<tr><td>${CalcOverallFeeling(tweet.score)}</td></tr>`);
 		$('#twitter-results').prepend(output);
 	});
 });
+
+
+/**
+ * Calculates the overall sentiment
+ */
+var totalSenti = 0;
+var tweetCount = 0;
+function CalcOverallFeeling(score) {
+	tweetCount++;
+	totalSenti += score;
+	var overallFeelling = totalSenti / tweetCount
+
+	$('#tweet-counter').empty().append(`${tweetCount}`);
+
+	return emojifyScore(overallFeelling);
+}
 
 /**
  * Generates HTML ouput for trending tags

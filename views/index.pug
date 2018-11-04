@@ -11,7 +11,7 @@ block content
 					a.nav-link(href='/') Home
 
 	.container
-		h1(style='margin-left: 33.33%') Hash Tag Querier 
+		h1 Hash Tag Querier 
 		form#twitter-query(method='post', action='javascript:sendFormContent()')
 			.form-group
 				.row
@@ -26,14 +26,18 @@ block content
 					.col-md-12
 						table#trending-tags
 		.row
-			.results.col-md-12
+			.results.col-md-10
 				h5 Live Twitter Feed:
 				.results-container
-					table#twitter-results.table.table-dark.tablehover
-			//- .analytics.col-md-8
-			//- 	h5 Analytics:
-			//- 	.analytics-container
-			//- 		table#analytics-results
+					table#twitter-results.table.table-dark.table-striped
+			.overall.col-md-2
+				h5#overall-feeling-header Overall Feeling:
+				.overall-feeling-container
+					table#overall-feeling
+						tr
+							td 😑
+				h6 Total Tweets Analysed:
+				p#tweet-counter 0
 
 	script(src="https://code.jquery.com/jquery-3.1.1.min.js")
 	script(src='/javascripts/twitter.js')
