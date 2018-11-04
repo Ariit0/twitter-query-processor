@@ -12,7 +12,6 @@ var io = socket_io();
 app.io = io;
 
 var indexRouter = require('./routes/index')(io);
-var usersRouter = require('./routes/users');
 
 var mongoose = require('mongoose');
 
@@ -43,7 +42,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // set routes
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use('/twitter-results', indexRouter);
 app.use('/trending-tags', indexRouter);
 

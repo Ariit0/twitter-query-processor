@@ -80,8 +80,6 @@ module.exports = function (io) {
 		socket.on('keyword', function(data) {
 			var query = data.keyword;
 			socketInfo[socket.id].tags = []; // Clean the current tags
-			// socketInfo[socket.id].tags = (data.keyword.split(',')); // Add tag/keyword to socket info
-			// console.log(socket.id + "has" + socketInfo[socket.id].tags);
 			
 			// store query into array for tracking 
 			if (query.indexOf(',') > -1) { // multi-tag query
@@ -89,27 +87,21 @@ module.exports = function (io) {
 				// ensures # is at the start of a query
 				for (var i = 0; i < res.length; i++) {
 					if (res[i].charAt(0) !== '#') {
-						// trackedTags[i] = `#${res[i]}`;
 						trackedTags.push(`#${res[i]}`);
 						socketInfo[socket.id].tags.push(`#${res[i]}`);
 					} else {
-						// trackedTags[i] = `${res[i]}`;
 						trackedTags.push(`${res[i]}`);
 						socketInfo[socket.id].tags.push(`${res[i]}`);
 					}
 				}
-				//console.log(trackedTags);
 			} else { // single tag query
 				if (query.charAt(0) !== '#') {
-					// trackedTags[0] = `#${query}`;
 					trackedTags.push(`#${query}`);
 					socketInfo[socket.id].tags.push(`#${query}`);
 				} else {
-					// trackedTags[0] = `${query}`;
 					trackedTags.push(`${query}`);
 					socketInfo[socket.id].tags.push(`${query}`);
 				}
-				//console.log(trackedTags);
 			}
 			
 			trackedTags = trackedTags.filter((v, i, a) => a.indexOf(v) === i);
@@ -163,7 +155,6 @@ module.exports = function (io) {
 				if(deleteFlag) {
 					try {
 						// Delete tracked word collection
-						// 
 						var collection = trackedTags[word].toLowerCase();
 
 						// if the last character of the tracked tag ends with a numeric value or  letter s
@@ -226,10 +217,8 @@ module.exports = function (io) {
 					//console.log(JSON.stringify(data.retweeted_status.extended_tweet.full_text));
 					if (data.retweeted_status.truncated == true) {
 						var tweetTxt = data.retweeted_status.extended_tweet.full_text;
-						//console.log(data);
 					} else {
 						var tweetTxt = data.retweeted_status.text;
-						//console.log(data);
 					}
 				} else {
 					var tweetTxt = data.text;
@@ -318,7 +307,6 @@ module.exports = function (io) {
 				});
 			});
 		}
-
 	});
 
 	return router;
