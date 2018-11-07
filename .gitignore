@@ -73,3 +73,6 @@ typings/
 # Serverless directories
 .serverless
 
+#MY IGNORES
+twitterconfig.json
+

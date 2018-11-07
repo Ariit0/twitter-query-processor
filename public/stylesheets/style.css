@@ -1,0 +1,62 @@
+.container {
+	margin-top: 30px;
+	padding-bottom: 30px;
+}
+
+h1 {
+	text-align: center;
+}
+
+.tags {
+	padding-bottom: 30px;
+}
+
+.popular-tags-container {
+	width: 100%;
+	height: 45px;
+	overflow-y: hidden;
+}
+
+.results-container {
+	background-color: #343A40;
+	height: 600px;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+.outer {
+	position: relative;
+	width: 100%;
+}
+
+.sentRes {
+	width: 10%;
+	font-size: 36px;
+	text-align: center;
+}
+
+.overall{
+	margin-bottom: 15%;
+	margin-top: 15%;
+}
+
+#overall-feeling {
+	width: 100%;
+}
+
+#overall-feeling td {
+	font-size: 100px;
+	text-align: center;
+}
+
+#overall-feeling-header {
+	text-align: center;
+}
+
+h6 {
+	text-align: center;
+}
+
+#tweet-counter {
+	text-align: center;;
+}
